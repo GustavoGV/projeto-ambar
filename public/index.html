@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>TEste</title>
+    <link rel="stylesheet" href="main.css"> 
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/102/three.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.2/TweenMax.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module">
+        let socket = io.connect('http://localhost:3000')
+        let idG = ""
+        let players = []
+        let scene = new THREE.Scene();
+
+        socket.on('escolhaClasse', function(id) {
+            
+            idG = id
+            /*
+            
+            let classe = prompt('Em qual ciencia do combate deseja se especializar? [mago], [ladino], [cavaleiro]').toUpperCase()
+            if(classe == 'MAGO'){
+                socket.emit('classe', {
+                    resp:'MAGO',
+                    id: id
+            })
+            }
+            else{
+                alert('escreva apenas o nome da especializacao que quer seguir...')
+                location.reload()
+            }
+            */
+            
+        })
+        socket.on('moveBlocked', function(id) {
+            console.log('your normal MOVE was BLOCKED')
+        })
+        socket.on('finalTurno', function() {
+            socket.emit('puxarUpdate', {id: idG})
+        })
+        socket.on('update', function(newPositions) {
+            for (let i = 0; i < newPositions.resp.length; i++) {
+                let c
+                for (let ii = 0; ii < players.length; ii++) {
+                    if(players[ii].nome == newPositions.resp[i].nome){
+                        players[ii].cube.position.x = newPositions.resp[i].x
+                        players[ii].cube.position.z = newPositions.resp[i].y
+
+                        players[ii].cube2.position.x = newPositions.resp[i].x
+                        players[ii].cube2.position.z = newPositions.resp[i].y
+
+                        players[ii].cube3.position.x = newPositions.resp[i].x
+                        players[ii].cube3.position.z = newPositions.resp[i].y
+                        // mexer
+                    }
+                    else{
+                        c = c + 1
+                    }
+                    
+                }
+                if(c == players.length){
+                    //add new PLAYER
+                    let geometry = new THREE.BoxGeometry(10,10,10)
+                    let material = new THREE.MeshBasicMaterial( {color: 0xFFCC00} )
+                
+                    let cube = new THREE.Mesh( geometry, material )
+                    let cube2 = new THREE.Mesh( geometry, material )
+                    let cube3 = new THREE.Mesh( geometry, material )
+                    cube.position.x = newPositions.resp[i].x
+                    cube.position.y = 25
+                    cube.position.z = newPositions.resp[i].y
+                    scene.add(cube)
+
+                    cube2.position.x = newPositions.resp[i].x
+                    cube2.position.y = 50
+                    cube2.position.z = newPositions.resp[i].y
+                    scene.add(cube2)
+                    
+                    cube3.position.x = newPositions.resp[i].x
+                    cube3.position.y = 75
+                    cube3.position.z = newPositions.resp[i].y
+                    scene.add(cube3)
+                    players.push({
+                        nome: newPositions.resp[i].nome,
+                        cubo: cubo,
+                        cubo2: cubo2,
+                        cubo3: cubo3
+                    })
+                }
+                
+            }
+            let novosCubos = []
+            for (let i = 0; i < newPositions.length; i++) {
+                for (let ii = 0; ii < players.length; ii++) {
+                    
+                    
+                }
+                
+            }
+        })
+
+        let camera =  new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight,1,2500)
+
+        camera.position.set(20, 560, 400)
+        camera.lookAt(new THREE.Vector3(20, 10, 100))
+
+        let renderer = new THREE.WebGLRenderer({antialias: true})
+        renderer.setClearColor("#e5e5e5")
+        renderer.setSize(window.innerWidth, window.innerHeight)
+
+        document.body.appendChild(renderer.domElement)
+
+        
+
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+
+            camera.updateProjectionMatrix();
+        })
+
+        document.addEventListener ('keypress', (event) => {
+            const keyName = event.key;
+            let sqm = 50
+            if(event.key == 'ctrl'){
+                socket.emit('run', {id: idG})
+            }
+
+            if(event.key == 'w'){
+                socket.emit('move', {id: idG, resp: "w"})
+                cube.position.x = cube.position.x
+                cube.position.y = cube.position.y
+                cube.position.z = cube.position.z - sqm
+
+                cube2.position.x = cube2.position.x
+                cube2.position.y = cube2.position.y
+                cube2.position.z = cube2.position.z - sqm
+                
+                cube3.position.x = cube3.position.x
+                cube3.position.y = cube3.position.y
+                cube3.position.z = cube3.position.z - sqm
+                
+            }
+            if(event.key == 's'){
+                socket.emit('action', {type: 'walk s', sockid: socket.id})
+                cube.position.x = cube.position.x
+                cube.position.y = cube.position.y
+                cube.position.z = cube.position.z + sqm
+
+                cube2.position.x = cube2.position.x
+                cube2.position.y = cube2.position.y
+                cube2.position.z = cube2.position.z + sqm
+                
+                cube3.position.x = cube3.position.x
+                cube3.position.y = cube3.position.y
+                cube3.position.z = cube3.position.z + sqm
+                
+            }
+            if(event.key == 'a'){
+                socket.emit('action', {type: 'walk a', sockid: socket.id})
+                cube.position.x = cube.position.x - sqm
+                cube.position.y = cube.position.y
+                cube.position.z = cube.position.z
+
+                cube2.position.x = cube2.position.x - sqm
+                cube2.position.y = cube2.position.y
+                cube2.position.z = cube2.position.z
+                
+                cube3.position.x = cube3.position.x - sqm
+                cube3.position.y = cube3.position.y
+                cube3.position.z = cube3.position.z
+                
+            }
+            if(event.key == 'd'){
+                socket.emit('action', {type: 'walk d', sockid: socket.id})
+                cube.position.x = cube.position.x + sqm
+                cube.position.y = cube.position.y
+                cube.position.z = cube.position.z
+
+                cube2.position.x = cube2.position.x + sqm
+                cube2.position.y = cube2.position.y
+                cube2.position.z = cube2.position.z
+                
+                cube3.position.x = cube3.position.x + sqm
+                cube3.position.y = cube3.position.y
+                cube3.position.z = cube3.position.z
+                
+           
+            }
+            if(event.key == 'q'){
+                socket.emit('action', {type: 'walk q', sockid: socket.id})
+               
+            }
+            if(event.key == 'e'){
+                socket.emit('action', {type: 'walk e', sockid: socket.id})
+               
+            }
+            if(event.key == 'z'){
+                socket.emit('action', {type: 'walk z', sockid: socket.id})
+            
+            }
+            if(event.key == 'c'){
+                socket.emit('action', {type: 'walk c', sockid: socket.id})
+             
+            }
+            if(event.key == 'b'){
+                /*
+                const geometry = new THREE.SphereGeometry( 50, 32, 32 );
+                const material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+                const sphere = new THREE.Mesh( geometry, material );
+                sphere.position.x = cube.position.x
+                sphere.position.y = cube.position.y + 120 + 300*Math.random()
+                sphere.position.z = cube.position.z
+                scene.add( sphere );
+                */
+                
+            }
+            
+        });
+
+   
+           
+                
+                let geometry = new THREE.BoxGeometry(10,10,10)
+                let material = new THREE.MeshBasicMaterial( {color: 0xFFCC00} )
+                
+                let cube = new THREE.Mesh( geometry, material )
+                let cube2 = new THREE.Mesh( geometry, material )
+                let cube3 = new THREE.Mesh( geometry, material )
+                cube.position.x = 25
+                cube.position.y = 12
+                cube.position.z = 25
+                scene.add(cube)
+
+                cube2.position.x = 25
+                cube2.position.y = 50
+                cube2.position.z = 25
+                scene.add(cube2)
+                
+                cube3.position.x = 25
+                cube3.position.y = 75
+                cube3.position.z = 25
+                scene.add(cube3)
+
+                
+           
+            
+        
+
+        
+
+        
+        
+        let light = new THREE.HemisphereLight( 0xffffff, 0x444444 );
+        light.position.set( 0, 200, 0)
+        scene.add( light )
+
+        light = new THREE.DirectionalLight( 0xffffff );
+        light.position.set( 0, 200, 100);
+        light.castShadow = true;
+        light.shadow.camera.top = 180;
+        light.shadow.camera.bottom = -100;
+        light.shadow.camera.left = -120;
+        light.shadow.camera.right = 120;
+        scene.add( light )
+
+        //ground
+
+        let mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2000, 2000), new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false }));
+        mesh.rotation.x = - Math.PI / 2
+        mesh.receiveShadow = true
+        scene.add( mesh )
+
+        let grid = new THREE.GridHelper( 2000, 40, 0x000000, 0x000000)
+        grid.material.opacity = 0.2;
+        grid.material.transparent = true;
+        scene.add(grid)
+
+		const animate = function () {
+
+			requestAnimationFrame( animate );
+         
+                cube.rotation.x += 0.1*Math.random()-0.05
+                cube.rotation.x += 0.1*Math.random()-0.05
+
+                cube2.rotation.x += 0.1*Math.random()-0.05
+                cube2.rotation.x += 0.1*Math.random()-0.05
+
+                cube3.rotation.x += 0.1*Math.random()-0.05
+                cube3.rotation.x += 0.1*Math.random()-0.05
+         
+            
+			renderer.render( scene, camera );
+			
+            };
+
+			animate();
+
+        
+
+        
+        
+
+        
+    </script>
+</body>
+</html>
