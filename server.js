@@ -78,6 +78,7 @@ sockets.on('connection', async (socket) => {
         }
     })
     socket.on('puxarUpdate', async (msg) => {
+        console.log(msg.id + ' <<puxarUpdate msg.id')
         let p = await Player.findById({"_id" : msg.id})
         let ps = await Player.find()
         let resp = []
@@ -91,7 +92,7 @@ sockets.on('connection', async (socket) => {
                 modY = modY*(-1)
             }
             if(mod < 7 && modY < 7){
-                if(ps[i]._id !== p._id){
+                if(ps[i]._id.toString() !== p._id.toString()){
                     resp.push({ //add apenas os outros players visiveis...
                         nome: ps[i].nome,
                         x: ps[i].x,
@@ -102,6 +103,12 @@ sockets.on('connection', async (socket) => {
                 }
             }   
         }
+        console.log('update-sent')
+        for (let index = 0; index < resp.length; index++) {
+            console.log(resp[index].nome + ' <<resp[i].nome')
+            
+        }
+        console.log('x >> ' + p.x + ' y >> ' + p.y)
         socket.emit('update', {
             resp: resp,
             x: p.x,
@@ -137,17 +144,18 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
 
         for(let i = 0; i < psPrioritarios.length; i++){
             let p = await Player.findById({ "_id" : psPrioritarios[i] })
+            console.log('nextMove >>' + p.nextMove)
                 let ps = await Player.find()
                 let colision = 0
                 if(p.nextMove == "w"){
                     for (let c = 0; c < ps.length; c++) {
-                        if( ps[c].x == p.x && ps[c].y == p.y + 1){ //checa se a posicao futura do nosso personagem esntrata em colisao com a posicao atual de algum player... (falta as paredes AQUI! )
+                        if( ps[c].x == p.x && ps[c].y == p.y - 1){ //checa se a posicao futura do nosso personagem esntrata em colisao com a posicao atual de algum player... (falta as paredes AQUI! )
                             colision = 1
                             break
                         }
                     }
                     if(colision !== true){ //validar se ta livre o sqm...
-                        p.y = p.y + 1
+                        p.y = p.y - 1
                         p.nextMove = p.nextNextMove
                         p.nextNextMove = "stay"
                         p.save()
@@ -158,13 +166,13 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
                 }
                 else if(p.nextMove == "s"){
                     for (let c = 0; c < ps.length; c++) {
-                        if( ps[c].x == p.x && ps[c].y == p.y - 1){ //checa se a posicao futura do nosso personagem esntrata em colisao com a posicao atual de algum player... (falta as paredes AQUI! )
+                        if( ps[c].x == p.x && ps[c].y == p.y + 1){ //checa se a posicao futura do nosso personagem esntrata em colisao com a posicao atual de algum player... (falta as paredes AQUI! )
                             colision = 1
                             break
                         }
                     }
                     if(colision !== true){ //validar se ta livre o sqm...
-                        p.y = p.y - 1
+                        p.y = p.y + 1
                         p.nextMove = p.nextNextMove
                         p.nextNextMove = "stay"
                         p.save()

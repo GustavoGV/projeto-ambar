@@ -15,6 +15,7 @@
         let socket = io.connect('http://localhost:3000')
         let idG = ""
         let players = []
+        let sqm = 50
         let scene = new THREE.Scene();
 
         socket.on('escolhaClasse', function(id) {
@@ -40,21 +41,31 @@
             console.log('your normal MOVE was BLOCKED')
         })
         socket.on('finalTurno', function() {
-            socket.emit('puxarUpdate', {id: idG})
+            if(idG.length > 2){
+                socket.emit('puxarUpdate', {id: idG})
+            }
         })
         socket.on('update', function(newPositions) {
+            cube.position.x = newPositions.x*sqm + 25
+            cube.position.z = newPositions.y*sqm + 25 
+
+            cube2.position.x = newPositions.x*sqm + 25
+            cube2.position.z = newPositions.y*sqm + 25 
+
+            cube3.position.x = newPositions.x*sqm + 25
+            cube3.position.z = newPositions.y*sqm + 25 
             for (let i = 0; i < newPositions.resp.length; i++) {
-                let c
+                let c = 0
                 for (let ii = 0; ii < players.length; ii++) {
                     if(players[ii].nome == newPositions.resp[i].nome){
-                        players[ii].cube.position.x = newPositions.resp[i].x
-                        players[ii].cube.position.z = newPositions.resp[i].y
+                        players[ii].cube.position.x = newPositions.resp[i].x*sqm + 25
+                        players[ii].cube.position.z = newPositions.resp[i].y*sqm + 25
 
-                        players[ii].cube2.position.x = newPositions.resp[i].x
-                        players[ii].cube2.position.z = newPositions.resp[i].y
+                        players[ii].cube2.position.x = newPositions.resp[i].x*sqm + 25
+                        players[ii].cube2.position.z = newPositions.resp[i].y*sqm + 25
 
-                        players[ii].cube3.position.x = newPositions.resp[i].x
-                        players[ii].cube3.position.z = newPositions.resp[i].y
+                        players[ii].cube3.position.x = newPositions.resp[i].x*sqm + 25
+                        players[ii].cube3.position.z = newPositions.resp[i].y*sqm + 25
                         // mexer
                     }
                     else{
@@ -86,9 +97,9 @@
                     scene.add(cube3)
                     players.push({
                         nome: newPositions.resp[i].nome,
-                        cubo: cubo,
-                        cubo2: cubo2,
-                        cubo3: cubo3
+                        cube: cube,
+                        cube2: cube2,
+                        cube3: cube3
                     })
                 }
                 
@@ -125,28 +136,31 @@
 
         document.addEventListener ('keypress', (event) => {
             const keyName = event.key;
-            let sqm = 50
             if(event.key == 'ctrl'){
                 socket.emit('run', {id: idG})
             }
 
             if(event.key == 'w'){
                 socket.emit('move', {id: idG, resp: "w"})
-                cube.position.x = cube.position.x
-                cube.position.y = cube.position.y
-                cube.position.z = cube.position.z - sqm
+                   
+                /*
+                    cube.position.x = cube.position.x
+                    cube.position.y = cube.position.y
+                    cube.position.z = cube.position.z - sqm
 
-                cube2.position.x = cube2.position.x
-                cube2.position.y = cube2.position.y
-                cube2.position.z = cube2.position.z - sqm
-                
-                cube3.position.x = cube3.position.x
-                cube3.position.y = cube3.position.y
-                cube3.position.z = cube3.position.z - sqm
+                    cube2.position.x = cube2.position.x
+                    cube2.position.y = cube2.position.y
+                    cube2.position.z = cube2.position.z - sqm
+
+                    cube3.position.x = cube3.position.x
+                    cube3.position.y = cube3.position.y
+                    cube3.position.z = cube3.position.z - sqm
+                */                    
                 
             }
             if(event.key == 's'){
-                socket.emit('action', {type: 'walk s', sockid: socket.id})
+                socket.emit('move', {id: idG, resp: "s"})
+                /*
                 cube.position.x = cube.position.x
                 cube.position.y = cube.position.y
                 cube.position.z = cube.position.z + sqm
@@ -158,10 +172,11 @@
                 cube3.position.x = cube3.position.x
                 cube3.position.y = cube3.position.y
                 cube3.position.z = cube3.position.z + sqm
-                
+                */
             }
             if(event.key == 'a'){
-                socket.emit('action', {type: 'walk a', sockid: socket.id})
+                socket.emit('move', {id: idG, resp: "a"})
+                /*
                 cube.position.x = cube.position.x - sqm
                 cube.position.y = cube.position.y
                 cube.position.z = cube.position.z
@@ -173,10 +188,12 @@
                 cube3.position.x = cube3.position.x - sqm
                 cube3.position.y = cube3.position.y
                 cube3.position.z = cube3.position.z
+                */
                 
             }
             if(event.key == 'd'){
-                socket.emit('action', {type: 'walk d', sockid: socket.id})
+                socket.emit('move', {id: idG, resp: "d"})
+                /*
                 cube.position.x = cube.position.x + sqm
                 cube.position.y = cube.position.y
                 cube.position.z = cube.position.z
@@ -188,23 +205,24 @@
                 cube3.position.x = cube3.position.x + sqm
                 cube3.position.y = cube3.position.y
                 cube3.position.z = cube3.position.z
+                */
                 
            
             }
             if(event.key == 'q'){
-                socket.emit('action', {type: 'walk q', sockid: socket.id})
+                socket.emit('move', {id: idG, resp: "q"})
                
             }
             if(event.key == 'e'){
-                socket.emit('action', {type: 'walk e', sockid: socket.id})
+                socket.emit('move', {id: idG, resp: "e"})
                
             }
             if(event.key == 'z'){
-                socket.emit('action', {type: 'walk z', sockid: socket.id})
+                socket.emit('move', {id: idG, resp: "z"})
             
             }
             if(event.key == 'c'){
-                socket.emit('action', {type: 'walk c', sockid: socket.id})
+                socket.emit('move', {id: idG, resp: "c"})
              
             }
             if(event.key == 'b'){
@@ -245,6 +263,12 @@
                 cube3.position.y = 75
                 cube3.position.z = 25
                 scene.add(cube3)
+                players.push({
+                        nome: `teste`,
+                        cube: cube,
+                        cube2: cube2,
+                        cube3: cube3
+                    })
 
                 
            
