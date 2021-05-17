@@ -1,11 +1,10 @@
 import express from 'express' // enviar dados
 import http from 'http'
 import socketio from 'socket.io'
-import mongoose from 'mongodb'
+import mongoose from 'mongoose'
 import schema from './schema.js'
 const Player = schema[0]
 const Global = schema[1] 
-
 
 // AQUI! == PONTOS QUE precisam de atencao (Da um searach no AQUI! q ta ssafe)
 
@@ -20,38 +19,6 @@ mongoose.connection
     .on('error', (error) => {
         console.warn('Falha ao se conectar com o banco de dados. Motivo: ', error)
     })
-
-    let np = new Player({
-        vida: 100,
-        mana: 120,
-        nextMove: "stay",
-        nextNextMove: "stay",
-        stamina: Math.round(10 + 2*Math.random()), //voce pode "correr" (apertando CNTRL (obs: isso apenas antecipa o movimento que ja havia sido setado pelo emit Move do Player)) (ou seja se movimentar tb no meio do turno...) mas gasta um ponto de stamina, q so se regenera com o tempo ou POÇões... (se vc levar um ataque correndo fica uns turnos em STUN... (para penalizar o jogador q abusar das corridas no combate contra NPCs e no PVP...))
-        iniciativa: Math.round((500 + 1000*Math.random())),
-        x: 7,  
-        y: 5,
-        z: 0,
-        sockid: "teste",
-        nome: 'Jesus',
-    })
-     np.save()
-
-    let np2 = new Player({
-        vida: 100,
-        mana: 120,
-        nextMove: "stay",
-        nextNextMove: "stay",
-        stamina: Math.round(10 + 2*Math.random()), //voce pode "correr" (apertando CNTRL (obs: isso apenas antecipa o movimento que ja havia sido setado pelo emit Move do Player)) (ou seja se movimentar tb no meio do turno...) mas gasta um ponto de stamina, q so se regenera com o tempo ou POÇões... (se vc levar um ataque correndo fica uns turnos em STUN... (para penalizar o jogador q abusar das corridas no combate contra NPCs e no PVP...))
-        iniciativa: Math.round((500 + 1000*Math.random())),
-        x: 7,  
-        y: 5,
-        z: 0,
-        sockid: 'teste',
-        nome: 'Jeova',
-    })
-     np2.save()
-
-
 
 app.use(express.static('public'))
 
