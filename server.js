@@ -12,7 +12,7 @@ const Global = schema[1]
 const app = express()
 const server = http.createServer(app)
 const sockets = socketio(server)
-const url = "mongodb+srv://user_4:@toka.rv0te.gcp.mongodb.net/<dbname>?retryWrites=true&w=majority"
+const url = "mongodb+srv://user_4:batata@toka.rv0te.gcp.mongodb.net/<dbname>?retryWrites=true&w=majority"
 
 const connectionParams={
     useNewUrlParser: true,
