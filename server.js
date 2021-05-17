@@ -1,24 +1,33 @@
 import express from 'express' // enviar dados
 import http from 'http'
 import socketio from 'socket.io'
-import mongoose from 'mongoose'
+import mongoose from 'mongodb'
 import schema from './schema.js'
 const Player = schema[0]
 const Global = schema[1] 
+
 
 // AQUI! == PONTOS QUE precisam de atencao (Da um searach no AQUI! q ta ssafe)
 
 const app = express()
 const server = http.createServer(app)
 const sockets = socketio(server)
+const url = "mongodb+srv://user_4:@toka.rv0te.gcp.mongodb.net/<dbname>?retryWrites=true&w=majority"
 
-mongoose.connect('mongodb://localhost/aluno_teste') //conexão com o banco de dados
-
-mongoose.connection
-    .once('open', () => console.log('Conexao com MongoDB (banco de dados) foi estabelecida com sucesso'))
-    .on('error', (error) => {
-        console.warn('Falha ao se conectar com o banco de dados. Motivo: ', error)
+const connectionParams={
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useUnifiedTopology: true 
+}
+mongoose.connect(url,connectionParams)
+    .then( () => {
+        console.log('Connected to database ')
     })
+    .catch( (err) => {
+        console.error(`Error connecting to the database. \n${err}`);
+    })
+
+
 
 app.use(express.static('public'))
 
