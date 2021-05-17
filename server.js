@@ -12,20 +12,44 @@ const Global = schema[1]
 const app = express()
 const server = http.createServer(app)
 const sockets = socketio(server)
-const url = "mongodb+srv://user_4:batata@toka.rv0te.gcp.mongodb.net/<dbname>?retryWrites=true&w=majority"
 
-const connectionParams={
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useUnifiedTopology: true 
-}
-mongoose.connect(url,connectionParams)
-    .then( () => {
-        console.log('Connected to database ')
+mongoose.connect('mongodb://localhost/aluno_teste') //conexão com o banco de dados
+
+mongoose.connection
+    .once('open', () => console.log('Conexao com MongoDB (banco de dados) foi estabelecida com sucesso'))
+    .on('error', (error) => {
+        console.warn('Falha ao se conectar com o banco de dados. Motivo: ', error)
     })
-    .catch( (err) => {
-        console.error(`Error connecting to the database. \n${err}`);
+
+    let np = new Player({
+        vida: 100,
+        mana: 120,
+        nextMove: "stay",
+        nextNextMove: "stay",
+        stamina: Math.round(10 + 2*Math.random()), //voce pode "correr" (apertando CNTRL (obs: isso apenas antecipa o movimento que ja havia sido setado pelo emit Move do Player)) (ou seja se movimentar tb no meio do turno...) mas gasta um ponto de stamina, q so se regenera com o tempo ou POÇões... (se vc levar um ataque correndo fica uns turnos em STUN... (para penalizar o jogador q abusar das corridas no combate contra NPCs e no PVP...))
+        iniciativa: Math.round((500 + 1000*Math.random())),
+        x: 7,  
+        y: 5,
+        z: 0,
+        sockid: "teste",
+        nome: 'Jesus',
     })
+     np.save()
+
+    let np2 = new Player({
+        vida: 100,
+        mana: 120,
+        nextMove: "stay",
+        nextNextMove: "stay",
+        stamina: Math.round(10 + 2*Math.random()), //voce pode "correr" (apertando CNTRL (obs: isso apenas antecipa o movimento que ja havia sido setado pelo emit Move do Player)) (ou seja se movimentar tb no meio do turno...) mas gasta um ponto de stamina, q so se regenera com o tempo ou POÇões... (se vc levar um ataque correndo fica uns turnos em STUN... (para penalizar o jogador q abusar das corridas no combate contra NPCs e no PVP...))
+        iniciativa: Math.round((500 + 1000*Math.random())),
+        x: 7,  
+        y: 5,
+        z: 0,
+        sockid: 'teste',
+        nome: 'Jeova',
+    })
+     np2.save()
 
 
 
