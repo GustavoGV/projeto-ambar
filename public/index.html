@@ -250,7 +250,7 @@
                 let cube2 = new THREE.Mesh( geometry, material )
                 let cube3 = new THREE.Mesh( geometry, material )
                 cube.position.x = 25
-                cube.position.y = 12
+                cube.position.y = 25
                 cube.position.z = 25
                 scene.add(cube)
 
@@ -309,13 +309,24 @@
 			requestAnimationFrame( animate );
          
                 cube.rotation.x += 0.1*Math.random()-0.05
-                cube.rotation.x += 0.1*Math.random()-0.05
+                cube.rotation.y += 0.1*Math.random()-0.05
 
                 cube2.rotation.x += 0.1*Math.random()-0.05
-                cube2.rotation.x += 0.1*Math.random()-0.05
+                cube2.rotation.y += 0.1*Math.random()-0.05
 
                 cube3.rotation.x += 0.1*Math.random()-0.05
-                cube3.rotation.x += 0.1*Math.random()-0.05
+                cube3.rotation.y += 0.1*Math.random()-0.05
+
+                for(let i = 0; i < players.length; i++){                    
+                    players[i].cube.rotation.x += 0.1*Math.random()-0.05
+                    players[i].cube.rotation.y += 0.1*Math.random()-0.05
+
+                    players[i].cube2.rotation.x += 0.1*Math.random()-0.05
+                    players[i].cube2.rotation.y += 0.1*Math.random()-0.05
+
+                    players[i].cube3.rotation.x += 0.1*Math.random()-0.05
+                    players[i].cube3.rotation.y += 0.1*Math.random()-0.05
+                }
          
             
 			renderer.render( scene, camera );

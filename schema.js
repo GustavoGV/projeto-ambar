@@ -26,6 +26,7 @@ const PlayerSchema = new Schema({
     x: Number,
     y: Number,
     z: Number,
+    direction: String,
 });
 
 const GlobalSchema = new Schema({
