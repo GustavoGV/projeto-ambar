@@ -10,9 +10,10 @@
 <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/102/three.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.2/TweenMax.min.js"></script>
+    <script src="objetos/Stone_Wall_1.obj"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script type="module">
-        let socket = io.connect('http://18.231.176.38:3000')
+        let socket = io.connect('http://localhost:3000/')
         let idG = ""
         let players = []
         let sqm = 50
@@ -116,6 +117,13 @@
 
         let camera =  new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight,1,2500)
 
+        let xCamera = 560
+        let yCamera = 400
+        let zCamera = 20
+
+        let xCameraLook = 10
+        let yCameraLook = 100
+
         camera.position.set(20, 560, 400)
         camera.lookAt(new THREE.Vector3(20, 10, 100))
 
@@ -133,7 +141,32 @@
 
             camera.updateProjectionMatrix();
         })
+        //const loader = new OBJLoader();
+/*
+// load a resource
+loader.load(
+	// resource URL
+	'objetos/Stone_Wall_1.obj',
+	// called when resource is loaded
+	function ( object ) {
 
+		scene.add( object );
+
+	},
+	// called when loading is in progresses
+	function ( xhr ) {
+
+		console.log( ( xhr.loaded / xhr.total * 1 ) + '% loaded' );
+
+	},
+	// called when loading has errors
+	function ( error ) {
+
+		console.log( 'An error happened' );
+
+	}
+);
+*/
         document.addEventListener ('keypress', (event) => {
             const keyName = event.key;
             if(event.key == 'ctrl'){
@@ -142,7 +175,15 @@
 
             if(event.key == 'w'){
                 socket.emit('move', {id: idG, resp: "w"})
-                   
+                yCamera = yCamera - sqm
+                yCameraLook = yCameraLook - sqm
+
+                camera.position.set(zCamera, xCamera, yCamera)
+                camera.lookAt(new THREE.Vector3(20, xCameraLook, yCameraLook))
+
+                
+                
+
                 /*
                     cube.position.x = cube.position.x
                     cube.position.y = cube.position.y
@@ -160,6 +201,14 @@
             }
             if(event.key == 's'){
                 socket.emit('move', {id: idG, resp: "s"})
+
+                yCamera = yCamera + sqm
+                yCameraLook = yCameraLook + sqm
+
+                camera.position.set(zCamera, xCamera, yCamera)
+                camera.lookAt(new THREE.Vector3(20, xCameraLook, yCameraLook))
+
+
                 /*
                 cube.position.x = cube.position.x
                 cube.position.y = cube.position.y
