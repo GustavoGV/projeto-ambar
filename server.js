@@ -24,6 +24,8 @@ app.use(express.static('public'))
 
 let actions = []
 
+let sobrenomes = ['gimly','kraus','kramer','cristo','maoemé','geremias','fofopa','perdirtos','santiagos','santifas2']
+
 
 sockets.on('connection', async (socket) => {
     let np = new Player({
@@ -33,11 +35,11 @@ sockets.on('connection', async (socket) => {
         nextNextMove: "stay",
         stamina: Math.round(10 + 2*Math.random()), //voce pode "correr" (apertando CNTRL (obs: isso apenas antecipa o movimento que ja havia sido setado pelo emit Move do Player)) (ou seja se movimentar tb no meio do turno...) mas gasta um ponto de stamina, q so se regenera com o tempo ou POÇões... (se vc levar um ataque correndo fica uns turnos em STUN... (para penalizar o jogador q abusar das corridas no combate contra NPCs e no PVP...))
         iniciativa: Math.round((500 + 1000*Math.random())),
-        x: 7,  
-        y: 5,
+        x: 0,  
+        y: 0,
         z: 0,
         sockid: socket.id,
-        nome: 'Jeova',
+        nome: 'Jeova'+sobrenomes[Math.round(Math.random()*10)]+Math.round(Math.random()*100),
     })
     await np.save()
     socket.emit('escolhaClasse', np._id)
@@ -246,3 +248,4 @@ server.listen(3000, () => {
 })
 
 //laura.campedelli@fgv.br mandar a resenha pra ela
+

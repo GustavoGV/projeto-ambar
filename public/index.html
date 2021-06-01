@@ -10,13 +10,21 @@
 <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/102/three.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.2/TweenMax.min.js"></script>
-    <script src="objetos/Stone_Wall_1.obj"></script>
     <script src="/socket.io/socket.io.js"></script>
+	
     <script type="module">
+        //import { GLTFLoader } from './assets/GLTFLoader.js'
         let socket = io.connect('http://localhost:3000/')
         let idG = ""
         let players = []
         let sqm = 50
+        let coordenadasJogador = []
+        let xCamera = 25
+        let yCamera = 500
+        let zCamera = 700
+
+        let xCameraLook = 25
+        let yCameraLook = 100
         let scene = new THREE.Scene();
 
         socket.on('escolhaClasse', function(id) {
@@ -47,6 +55,14 @@
             }
         })
         socket.on('update', function(newPositions) {
+            console.log(newPositions.x + "newPositions.x <<")
+            console.log(newPositions.y + "newPositions.y <<")
+            if(newPositions.x !== coordenadasJogador[0] || newPositions.y !== coordenadasJogador[1]){
+                camera.position.set(xCamera + newPositions.x*sqm, zCamera, yCamera + newPositions.y*sqm)
+                camera.lookAt(new THREE.Vector3(xCameraLook + newPositions.x*sqm, 20, yCameraLook + newPositions.y*sqm))
+                coordenadasJogador[0] = newPositions.x
+                coordenadasJogador[1] = newPositions.y
+            }
             cube.position.x = newPositions.x*sqm + 25
             cube.position.z = newPositions.y*sqm + 25 
 
@@ -77,7 +93,7 @@
                 if(c == players.length){
                     //add new PLAYER
                     let geometry = new THREE.BoxGeometry(10,10,10)
-                    let material = new THREE.MeshBasicMaterial( {color: 0xFFCC00} )
+                    let material = new THREE.MeshBasicMaterial( {color: 0xff0000 } )
                 
                     let cube = new THREE.Mesh( geometry, material )
                     let cube2 = new THREE.Mesh( geometry, material )
@@ -117,12 +133,7 @@
 
         let camera =  new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight,1,2500)
 
-        let xCamera = 560
-        let yCamera = 400
-        let zCamera = 20
-
-        let xCameraLook = 10
-        let yCameraLook = 100
+        
 
         camera.position.set(20, 560, 400)
         camera.lookAt(new THREE.Vector3(20, 10, 100))
@@ -175,12 +186,6 @@ loader.load(
 
             if(event.key == 'w'){
                 socket.emit('move', {id: idG, resp: "w"})
-                yCamera = yCamera - sqm
-                yCameraLook = yCameraLook - sqm
-
-                camera.position.set(zCamera, xCamera, yCamera)
-                camera.lookAt(new THREE.Vector3(20, xCameraLook, yCameraLook))
-
                 
                 
 
@@ -201,12 +206,6 @@ loader.load(
             }
             if(event.key == 's'){
                 socket.emit('move', {id: idG, resp: "s"})
-
-                yCamera = yCamera + sqm
-                yCameraLook = yCameraLook + sqm
-
-                camera.position.set(zCamera, xCamera, yCamera)
-                camera.lookAt(new THREE.Vector3(20, xCameraLook, yCameraLook))
 
 
                 /*
@@ -288,8 +287,11 @@ loader.load(
             }
             
         });
+               
+               
+                
 
-   
+            
            
                 
                 let geometry = new THREE.BoxGeometry(10,10,10)
@@ -352,6 +354,11 @@ loader.load(
         grid.material.opacity = 0.2;
         grid.material.transparent = true;
         scene.add(grid)
+        //let loader = new GLTFLoader()
+        //loader.load( 'assets/scene.gltf', function (gltf) {
+          
+            //scene.add(gltf.scene)
+        //} )
 
 		const animate = function () {
 
