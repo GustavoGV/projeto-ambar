@@ -8,9 +8,14 @@
     <link rel="stylesheet" href="main.css"> 
 </head>
 <body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/102/three.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.2/TweenMax.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
+    <script src="/assets/libs/FBXLoader.js"></script>
+    <script src="/assets/libs/three.min.js"></script>
+    <script src="/assets/libs/inflate.min.js"></script>
+    <script src="/assets/libs/FBXLoader.js"></script>
+    <script src="/assets/libs/OrbitControls.js"></script>
+    <script src="/assets/libs/Detector.js"></script>
+    
 	
     <script type="module">
         //import { GLTFLoader } from './assets/GLTFLoader.js'
@@ -359,6 +364,69 @@ loader.load(
           
             //scene.add(gltf.scene)
         //} )
+        const loader = new THREE.FBXLoader();
+		const game = this;
+        let t
+        let tt
+        let t1
+        let tt1
+		
+		loader.load( `/assets/modelos/fbx/people/FireFighter.fbx`, function ( object ) {
+
+			object.mixer = new THREE.AnimationMixer( object );
+			t = object.mixer;
+			tt = object.mixer.getRoot();
+			
+			object.name = "FireFighter";
+					
+			object.traverse( function ( child ) {
+				if ( child.isMesh ) {
+					child.castShadow = true;
+					child.receiveShadow = false;		
+				}
+			} );
+			
+            const tLoader = new THREE.TextureLoader();
+            tLoader.load(`/assets/modelos/images/SimplePeople_FireFighter_Brown.png`, function(texture){
+				object.traverse( function ( child ) {
+					if ( child.isMesh ){
+						child.material.map = texture;
+					}
+				} );
+			});
+            
+			scene.add(object);
+			t.clipAction(object.animations[0]).play();
+            
+            //game.animate();
+		} );
+
+        loader.load( `/assets/modelos/fbx/people/Character.fbx`, function ( object ) {
+
+object.mixer = new THREE.AnimationMixer( object );
+t1 = object.mixer;
+tt1 = object.mixer.getRoot();
+
+object.name = "Character";
+        
+object.traverse( function ( child ) {
+    if ( child.isMesh ) {
+        child.castShadow = true;
+        child.receiveShadow = false;		
+    }
+} );
+
+object.position.x = 800
+object.position.y = 50
+object.position.z = 300
+
+
+scene.add(object);
+
+//t1.clipAction(object.animations[0]).play();
+
+//game.animate();
+} );
 
 		const animate = function () {
 
