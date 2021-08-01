@@ -19,7 +19,7 @@
 	
     <script type="module">
         //import { GLTFLoader } from './assets/GLTFLoader.js'
-        let socket = io.connect('http://18.231.176.38:3000/')
+        let socket = io.connect('http://18.231.176.38:3000/')//http://18.231.176.38:3000/')
         let idG = ""
         let players = []
         let sqm = 50
@@ -31,6 +31,53 @@
         let xCameraLook = 25
         let yCameraLook = 100
         let scene = new THREE.Scene();
+
+        const loader = new THREE.FBXLoader();
+		const game = this;
+        let t
+        let tt
+        let t1
+        
+        let tt1
+		
+		loader.load( `/assets/modelos/fbx/people/FireFighter.fbx`, function ( object ) {
+
+			object.mixer = new THREE.AnimationMixer( object );
+			t = object.mixer;
+			tt = object.mixer.getRoot();
+            t1 = object.position
+            tt1 = object.rotation
+            
+            
+			object.name = "FireFighter";
+					
+			object.traverse( function ( child ) {
+				if ( child.isMesh ) {
+					child.castShadow = true;
+					child.receiveShadow = false;		
+				}
+			} );
+			
+            const tLoader = new THREE.TextureLoader();
+            tLoader.load(`/assets/modelos/images/SimplePeople_FireFighter_Brown.png`, function(texture){
+				object.traverse( function ( child ) {
+					if ( child.isMesh ){
+						child.material.map = texture;
+					}
+				} );
+			});
+            
+
+            
+            
+			scene.add(object);
+			//object.mixer.clipAction(object.animations[0]).play();
+            
+            //game.animate();
+		} );
+
+  
+
 
         socket.on('escolhaClasse', function(id) {
             
@@ -59,15 +106,31 @@
                 socket.emit('puxarUpdate', {id: idG})
             }
         })
+        
         socket.on('update', function(newPositions) {
             console.log(newPositions.x + "newPositions.x <<")
             console.log(newPositions.y + "newPositions.y <<")
             if(newPositions.x !== coordenadasJogador[0] || newPositions.y !== coordenadasJogador[1]){
+                if(newPositions.x - coordenadasJogador[0] < 0){
+                    tt1.set(0, Math.PI*3/2, 0)
+                }
+                if(newPositions.x - coordenadasJogador[0] > 0){
+                    tt1.set(0, Math.PI / 2, 0)
+                }   
+                if(newPositions.y - coordenadasJogador[1] < 0){
+                    tt1.set(0, Math.PI, 0)
+                }
+                if(newPositions.y - coordenadasJogador[1] > 0){
+                    tt1.set(0, Math.PI*2, 0)
+                }
                 camera.position.set(xCamera + newPositions.x*sqm, zCamera, yCamera + newPositions.y*sqm)
                 camera.lookAt(new THREE.Vector3(xCameraLook + newPositions.x*sqm, 20, yCameraLook + newPositions.y*sqm))
                 coordenadasJogador[0] = newPositions.x
                 coordenadasJogador[1] = newPositions.y
             }
+            t1.x = newPositions.x*sqm + 25
+            t1.z = newPositions.y*sqm + 25
+
             cube.position.x = newPositions.x*sqm + 25
             cube.position.z = newPositions.y*sqm + 25 
 
@@ -364,70 +427,7 @@ loader.load(
           
             //scene.add(gltf.scene)
         //} )
-        const loader = new THREE.FBXLoader();
-		const game = this;
-        let t
-        let tt
-        let t1
-        let tt1
-		
-		loader.load( `/assets/modelos/fbx/people/FireFighter.fbx`, function ( object ) {
-
-			object.mixer = new THREE.AnimationMixer( object );
-			t = object.mixer;
-			tt = object.mixer.getRoot();
-			
-			object.name = "FireFighter";
-					
-			object.traverse( function ( child ) {
-				if ( child.isMesh ) {
-					child.castShadow = true;
-					child.receiveShadow = false;		
-				}
-			} );
-			
-            const tLoader = new THREE.TextureLoader();
-            tLoader.load(`/assets/modelos/images/SimplePeople_FireFighter_Brown.png`, function(texture){
-				object.traverse( function ( child ) {
-					if ( child.isMesh ){
-						child.material.map = texture;
-					}
-				} );
-			});
-            
-			scene.add(object);
-			t.clipAction(object.animations[0]).play();
-            
-            //game.animate();
-		} );
-
-        loader.load( `/assets/modelos/fbx/people/Character.fbx`, function ( object ) {
-
-object.mixer = new THREE.AnimationMixer( object );
-t1 = object.mixer;
-tt1 = object.mixer.getRoot();
-
-object.name = "Character";
         
-object.traverse( function ( child ) {
-    if ( child.isMesh ) {
-        child.castShadow = true;
-        child.receiveShadow = false;		
-    }
-} );
-
-object.position.x = 800
-object.position.y = 50
-object.position.z = 300
-
-
-scene.add(object);
-
-//t1.clipAction(object.animations[0]).play();
-
-//game.animate();
-} );
-
 		const animate = function () {
 
 			requestAnimationFrame( animate );
