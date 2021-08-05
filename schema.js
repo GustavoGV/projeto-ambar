@@ -16,17 +16,25 @@ const PlayerSchema = new Schema({
     vida: Number,
     sockid: String,
     nome: String,
+    level: Number,
+    defesaFisica: Number,
+    defesaMagica: Number,
+    defesaHoly: Number,
+    defesaShadow: Number,
+    magicLevel: Number,
+    classe: String,
     mana: Number,
     stamina: Number,
+    forca: Number,
     run: Number,
     iniciativa: Number,
     nextMove: String,
     nextNextMove: String,
-    mid_turn_action: String,
+    action: String,
     x: Number,
     y: Number,
     z: Number,
-    direction: String,
+    lastRotation: String
 });
 
 const GlobalSchema = new Schema({

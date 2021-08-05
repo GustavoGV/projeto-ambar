@@ -19,7 +19,7 @@
 	
     <script type="module">
         //import { GLTFLoader } from './assets/GLTFLoader.js'
-        let socket = io.connect('http://18.231.176.38:3000/')//http://18.231.176.38:3000/')
+        let socket = io.connect('http://localhost:3000/')//http://18.231.176.38:3000/')
         let idG = ""
         let players = []
         let sqm = 50
@@ -251,7 +251,20 @@ loader.load(
             if(event.key == 'ctrl'){
                 socket.emit('run', {id: idG})
             }
-
+            if(event.key == ' '){
+                alert('bala')
+                socket.emit('action', {id: idG, resp: "basicAtack"})
+             
+            }
+            if(event.key == '1'){
+                socket.emit('action', {id: idG, resp: "skill1"})
+            }
+            if(event.key == '2'){
+                socket.emit('action', {id: idG, resp: "skill2"})
+            }
+            if(event.key == '3'){
+                socket.emit('action', {id: idG, resp: "skill3"})
+            }
             if(event.key == 'w'){
                 socket.emit('move', {id: idG, resp: "w"})
                 
