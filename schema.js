@@ -1,15 +1,5 @@
 import mongoose from 'mongoose'
 
-/*
-interface casa = {
-    quarto:string,
-    bnheiro:string,
-}
-
-let chatuba:casa = {
-
-}
-*/
 const Schema = mongoose.Schema;
 
 const PlayerSchema = new Schema({
@@ -20,7 +10,10 @@ const PlayerSchema = new Schema({
     defesaFisica: Number,
     defesaMagica: Number,
     defesaHoly: Number,
+/*
+TODO LATER
     defesaShadow: Number,
+*/
     magicLevel: Number,
     classe: String,
     mana: Number,
@@ -31,6 +24,26 @@ const PlayerSchema = new Schema({
     nextMove: String,
     nextNextMove: String,
     action: String,
+    x: Number,
+    y: Number,
+    z: Number,
+    lastRotation: String
+});
+
+const CreatureSchema = new Schema({
+    vida: Number,
+    sex: Number, /*Se o bixo for macho ou fêmea*/
+    level: Number,
+    defesaFisica: Number,
+    defesaMagica: Number,
+/*    defesaHoly: Number,
+    magicLevel: Number,*/
+    mana: Number,
+    stamina: Number,
+    forca: Number,
+    nextMove: String,
+    nextNextMove: String,
+    fuga,
     x: Number,
     y: Number,
     z: Number,

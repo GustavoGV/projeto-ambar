@@ -12,7 +12,8 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
-    "mongoose": "^5.11.18",
+    "mongoose": "^5.13.5",
+    "nvm": "0.0.4",
     "socketio": "^1.0.0",
     "three-fbx-loader": "^1.0.3"
   }

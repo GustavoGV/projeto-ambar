@@ -4,10 +4,11 @@ import socketio from 'socket.io'
 import mongoose from 'mongoose'
 import schema from './schema.js'
 const Player = schema[0]
-const Global = schema[1] 
+const Global = schema[1]
 
 // AQUI! == PONTOS QUE precisam de atencao (Da um searach no AQUI! q ta ssafe)
 
+const app = express()
 const app = express()
 const server = http.createServer(app)
 const sockets = socketio(server)
