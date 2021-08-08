@@ -43,7 +43,7 @@ const CreatureSchema = new Schema({
     forca: Number,
     nextMove: String,
     nextNextMove: String,
-    fuga,
+    fuga: String,
     x: Number,
     y: Number,
     z: Number,

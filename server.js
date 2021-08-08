@@ -9,7 +9,6 @@ const Global = schema[1]
 // AQUI! == PONTOS QUE precisam de atencao (Da um searach no AQUI! q ta ssafe)
 
 const app = express()
-const app = express()
 const server = http.createServer(app)
 const sockets = socketio(server)
 
@@ -185,7 +184,7 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
                         }
                     }
                     if(colision !== 1){ //validar se ta livre o sqm...
-                        console.log('passou w ' + colision)
+                        //console.log('passou w ' + colision)
                         p.y = p.y - 1
                         p.lastRotation = 'w'
                         p.nextMove = p.nextNextMove
@@ -844,6 +843,7 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
                                             actions[iii].on = 0
                                         }
                                     }
+                                    await ps.save()
                                 }
                             } 
                         }
@@ -870,7 +870,7 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
                 spliceActions.push(i)
             }
         }
-        await ps.save()
+        //await ps.save()
         function spliceA(sa) {
             if(sa.length > 0){
                 actions.splice(sa[0],1)
