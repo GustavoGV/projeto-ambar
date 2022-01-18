@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>TEste</title>
+    <link rel="stylesheet" href="main.css"> 
+</head>
+<body>
+    <script src="/socket.io/socket.io.js"></script>
+   
+   
+    
+	
+    <script type="module">
+    import { GLTFLoader } from './assets/GLTFLoader.js'
+    import * as THREE from './assets/moduleThree.js';
+        /*
+    "/socket.io/socket.io.js">
+    "/assets/GLTFLoader.js"
+    "/assets/libs/three.min.js"
+    "/assets/libs/inflate.min.js"
+    "/assets/libs/OrbitControls.js"
+    "/assets/libs/Detector.js"
+        */
+        let socket = io.connect('http://localhost:3000/')//http://18.231.176.38:3000/')
+        let idG = ""
+        let players = []
+        let actions = []
+        let sqm = 50
+        let coordenadasJogador = []
+        let xCamera = 25
+        let yCamera = 500
+        let zCamera = 700
+        let rotationCamera = "a"
+
+        let xCameraLook = 25
+        let yCameraLook = 100
+        let scene = new THREE.Scene();
+        const controller = {//guarda registro da teclas clicadas
+            16: {estado: false},//shift
+            20: {estado: false},//tecla: "FIXA embaixo do tab"
+            32: {estado: false},//SPACE
+            37: {estado: false},//seta Esquerda
+            38: {estado: false},//seta Cima
+            39: {estado: false},//seta Direita
+            40: {estado: false},//seta Baixo
+            49: {estado: false},//numeros teclado de cima(1)
+            50: {estado: false},//numeros teclado de cima(2)
+            51: {estado: false},//numeros teclado de cima(3)
+            52: {estado: false},//numeros teclado de cima(4)
+            53: {estado: false},//numeros teclado de cima(5)
+            54: {estado: false},//numeros teclado de cima(6)
+            87: {estado: false},//W
+            68: {estado: false},//D
+            65: {estado: false},//A
+            83: {estado: false},//S
+            100: {estado: false},//teclado do lado numeros (4)
+            101: {estado: false},//teclado do lado numeros (5)
+            102: {estado: false},//teclado do lado numeros (6)
+            103: {estado: false},//teclado do lado numeros (7)
+            104: {estado: false},//teclado do lado numeros (8)
+            105: {estado: false},//teclado do lado numeros (9)
+
+        }
+        //
+
+        //const loader = new THREE.FBXLoader();
+        const loader = new GLTFLoader();
+		const game = this;
+        let tt
+        let t1
+        
+        let tt1
+
+		loader.load('/assets/modelos/gltf/Soldier.glb', function (gltf) {
+            const model = gltf.scene;
+            model.traverse(function (object) {
+                if (object.isMesh) object.castShadow = true
+            })
+            t1 = gltf.position
+            tt1 = gltf.rotation
+
+            scene.add(model);
+
+
+
+        })
+
+        /*
+		loader.load( `/assets/modelos/fbx/people/FireFighter.fbx`, function ( object ) {
+
+			object.mixer = new THREE.AnimationMixer( object );
+			tt = object.mixer.getRoot();
+            t1 = object.position
+            tt1 = object.rotation
+
+            object.scale.set(0.25, 0.25, 0.25)
+            
+            
+			object.name = "FireFighter";
+					
+			object.traverse( function ( child ) {
+				if ( child.isMesh ) {
+					child.castShadow = true;
+					child.receiveShadow = false;		
+				}
+			} );
+			
+            const tLoader = new THREE.TextureLoader();
+            tLoader.load(`/assets/modelos/images/SimplePeople_FireFighter_Brown.png`, function(texture){
+				object.traverse( function ( child ) {
+					if ( child.isMesh ){
+						child.material.map = texture;
+					}
+				} );
+                loader.load(`/assets/modelos/fbx/anims/Walking.fbx`, (ani) => {
+                    animacaoAndar = object.mixer.clipAction(ani.animations[0])
+                    animacaoAndar.play()
+                })
+
+			});
+            
+
+            
+            
+			scene.add(object);
+			//object.mixer.clipAction(object.animations[0]).play();
+            
+            //game.animate();
+		} );
+        */
+  
+
+
+        socket.on('escolhaClasse', function(id) {
+            
+            idG = id
+            /*
+            
+            let classe = prompt('Em qual ciencia do combate deseja se especializar? [mago], [ladino], [cavaleiro]').toUpperCase()
+            if(classe == 'MAGO'){
+                socket.emit('classe', {
+                    resp:'MAGO',
+                    id: id
+            })
+            }
+            else{
+                alert('escreva apenas o nome da especializacao que quer seguir...')
+                location.reload()
+            }
+            */
+            
+        })
+        socket.on('moveBlocked', function(id) {
+            console.log('your normal MOVE was BLOCKED')
+        })
+        socket.on('finalTurno', function() {
+            if(idG.length > 2){
+                socket.emit('puxarUpdate', {id: idG})
+            }
+        })
+        
+        socket.on('update', function(newPositions) {
+            if(newPositions.actions.length > 0){
+                for( let i = 0; i < newPositions.actions.length; i ++){
+                    console.log('------')
+                    console.log(newPositions.actions.x + ' <- x')
+                    console.log(newPositions.actions.y + ' <- y')
+                    console.log('------')
+                }
+            }
+            //console.log(newPositions.x + "newPositions.x <<")
+            //console.log(newPositions.y + "newPositions.y <<")
+            if(true){
+                if(newPositions.rotation == "a"){//newPositions.x - coordenadasJogador[0] < 0 ){ //esquerca
+                    tt1.set(0, Math.PI*3/2, 0)
+                }
+                if(newPositions.rotation == "d"){
+                    tt1.set(0, Math.PI / 2, 0)
+                }   
+                if(newPositions.rotation == "w"){
+                    tt1.set(0, Math.PI, 0)
+                }
+                if(newPositions.rotation == "s"){
+                    tt1.set(0, Math.PI*2, 0)
+                }
+                camera.position.set(xCamera + newPositions.x*sqm, zCamera, yCamera + newPositions.y*sqm)
+                camera.lookAt(new THREE.Vector3(xCameraLook + newPositions.x*sqm, 20, yCameraLook + newPositions.y*sqm))
+                coordenadasJogador[0] = newPositions.x
+                coordenadasJogador[1] = newPositions.y
+            }
+            t1.x = newPositions.x*sqm + 25
+            t1.z = newPositions.y*sqm + 25
+
+            cube.position.x = newPositions.x*sqm + 25
+            cube.position.z = newPositions.y*sqm + 25 
+
+            cube2.position.x = newPositions.x*sqm + 25
+            cube2.position.z = newPositions.y*sqm + 25 
+
+            cube3.position.x = newPositions.x*sqm + 25
+            cube3.position.z = newPositions.y*sqm + 25 
+            for (let i = 0; i < newPositions.resp.length; i++) {
+                let c = 0
+                for (let ii = 0; ii < players.length; ii++) {
+                    if(players[ii].nome == newPositions.resp[i].nome){
+                        if(newPositions.resp[i].x !== players[ii].x || newPositions.resp[i].y !== players[ii].y){
+                            if(newPositions.resp[i].x - players[ii].x < 0){
+                                players[ii].characterRotation.set(0, Math.PI*3/2, 0)
+                            }
+                            if(newPositions.resp[i].x - players[ii].x > 0){
+                                players[ii].characterRotation.set(0, Math.PI / 2, 0)
+                            }   
+                            if(newPositions.resp[i].y - players[ii].y < 0){
+                                players[ii].characterRotation.set(0, Math.PI, 0)
+                            }
+                            if(newPositions.resp[i].y - players[ii].y > 0){
+                                players[ii].characterRotation.set(0, Math.PI*2, 0)
+                            }
+                        players[ii].x = newPositions.resp[i].x
+                        players[ii].y = newPositions.resp[i].y
+                        }
+                        players[ii].cube.position.x = newPositions.resp[i].x*sqm + 25
+                        players[ii].cube.position.z = newPositions.resp[i].y*sqm + 25
+
+                        players[ii].cube2.position.x = newPositions.resp[i].x*sqm + 25
+                        players[ii].cube2.position.z = newPositions.resp[i].y*sqm + 25
+
+                        players[ii].cube3.position.x = newPositions.resp[i].x*sqm + 25
+                        players[ii].cube3.position.z = newPositions.resp[i].y*sqm + 25
+
+                        players[ii].characterPosition.x = newPositions.resp[i].x*sqm + 25
+                        players[ii].characterPosition.z = newPositions.resp[i].y*sqm + 25
+
+                        
+ 
+                        // mexer
+                    }
+                    else{
+                        c = c + 1
+                    }
+                    
+                }
+                if(c == players.length){
+                    //add new PLAYER
+                    let geometry = new THREE.BoxGeometry(10,10,10)
+                    let material = new THREE.MeshBasicMaterial( {color: 0xff0000 } )
+                
+                    let cube = new THREE.Mesh( geometry, material )
+                    let cube2 = new THREE.Mesh( geometry, material )
+                    let cube3 = new THREE.Mesh( geometry, material )
+                    cube.position.x = newPositions.resp[i].x
+                    cube.position.y = 25
+                    cube.position.z = newPositions.resp[i].y
+                    scene.add(cube)
+
+                    cube2.position.x = newPositions.resp[i].x
+                    cube2.position.y = 50
+                    cube2.position.z = newPositions.resp[i].y
+                    scene.add(cube2)
+                    
+                    cube3.position.x = newPositions.resp[i].x
+                    cube3.position.y = 75
+                    cube3.position.z = newPositions.resp[i].y
+                    scene.add(cube3)
+
+                    //
+                    /*
+                    loader.load( `/assets/modelos/fbx/people/FireFighter.fbx`, function ( object ) {
+
+                    object.mixer = new THREE.AnimationMixer( object );
+                    //t = object.mixer;
+                    //tt = object.mixer.getRoot();
+                    //t1 = object.position
+                    //tt1 = object.rotation
+
+                    object.scale.set(0.25, 0.25, 0.25)
+
+
+                    object.name = "FireFighter";
+        
+                    object.traverse( function ( child ) {
+                        if ( child.isMesh ) {
+                            child.castShadow = true;
+                            child.receiveShadow = false;		
+                        }
+                    } );
+
+                    const tLoader = new THREE.TextureLoader();
+                    tLoader.load(`/assets/modelos/images/SimplePeople_FireFighter_Brown.png`, function(texture){
+                        object.traverse( function ( child ) {
+                            if ( child.isMesh ){
+                                child.material.map = texture;
+                            }
+                        } );
+                    });
+
+                    players.push({
+                        nome: newPositions.resp[i].nome,
+                        cube: cube,
+                        cube2: cube2,
+                        cube3: cube3,
+                        characterPosition: object.position,
+                        characterRotation: object.rotation,
+                        lastRotation: newPositions.resp[i].lastRotation,
+                        x: newPositions.resp[i].x,
+                        y: newPositions.resp[i].y
+                    })
+
+
+                    scene.add(object);
+                    //object.mixer.clipAction(object.animations[0]).play();
+
+                    //game.animate();
+                    } );                        
+                    //  
+                    */
+
+                    
+                }
+                
+            }
+            let novosCubos = []
+            for (let i = 0; i < newPositions.length; i++) {
+                for (let ii = 0; ii < players.length; ii++) {
+                    
+                    
+                }
+                
+            }
+        })
+
+        let camera =  new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight,1,2500)
+
+        
+
+        camera.position.set(20, 560, 400)
+        camera.lookAt(new THREE.Vector3(20, 10, 100))
+
+        let renderer = new THREE.WebGLRenderer({antialias: true})
+        renderer.setClearColor("#e5e5e5")
+        renderer.setSize(window.innerWidth, window.innerHeight)
+
+        document.body.appendChild(renderer.domElement)
+
+        
+
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+
+            camera.updateProjectionMatrix();
+        })
+        //const loader = new OBJLoader();
+/*
+// load a resource
+loader.load(
+	// resource URL
+	'objetos/Stone_Wall_1.obj',
+	// called when resource is loaded
+	function ( object ) {
+
+		scene.add( object );
+
+	},
+	// called when loading is in progresses
+	function ( xhr ) {
+
+		console.log( ( xhr.loaded / xhr.total * 1 ) + '% loaded' );
+
+	},
+	// called when loading has errors
+	function ( error ) {
+
+		console.log( 'An error happened' );
+
+	}
+);
+*/
+
+        //detecting double tap keys:
+        document.addEventListener("keydown",(e)=>{
+            console.log(e.keyCode)
+            if(controller[e.keyCode]){
+                controller[e.keyCode].estado = true
+            }
+            handleComand(controller)
+        })
+        document.addEventListener("keyup",(e)=>{
+            if(controller[e.keyCode]){
+                controller[e.keyCode].estado = false
+            }
+            if(e.keyCode == 16 || e.keyCode == 20){
+                handleComand(controller)
+            }
+            //handleComand(controller)
+        })
+
+        function handleComand(cmds) {
+            if(cmds[32].estado){//ataque basico
+                socket.emit('action', {id: idG, resp: "basicAtack"})
+            }
+            if(cmds[103].estado || cmds[49].estado){//skill 1
+                socket.emit('action', {id: idG, resp: "skill1"})
+            }
+            if(cmds[104].estado || cmds[50].estado){//skill 2
+                socket.emit('action', {id: idG, resp: "skill2"})
+            }
+            if(cmds[105].estado || cmds[51].estado){//skill 3
+                socket.emit('action', {id: idG, resp: "skill3"})
+            }
+            if(cmds[100].estado || cmds[52].estado){//item 1
+
+            }
+            if(cmds[101].estado || cmds[53].estado){//skill 2
+
+            }
+            if(cmds[102].estado || cmds[54].estado){//skill 3
+
+            }   
+
+            //movimentação do personagem:
+            if((cmds[16].estado || cmds[20].estado) && cmds[87].estado){//virar pra frente
+                socket.emit('rotation', {id: idG, resp: "w"})
+                console.log('rotaiton frente')
+            }   
+            else{
+                if(cmds[87].estado){//andar pra frente
+                    socket.emit('move', {id: idG, resp: "w"})
+                }
+            }
+            if((cmds[16].estado || cmds[20].estado) && cmds[68].estado){//virar pra direita
+                socket.emit('rotation', {id: idG, resp: "d"})
+            }
+            else{
+                if(cmds[68].estado){//andar pra direita
+                    socket.emit('move', {id: idG, resp: "d"})
+                }
+            }
+            if((cmds[16].estado || cmds[20].estado) && cmds[65].estado){//virar pra esquerda
+                socket.emit('rotation', {id: idG, resp: "a"})
+            }
+            else{
+                if(cmds[65].estado){//andar pra esquerda
+                    socket.emit('move', {id: idG, resp: "a"})
+                }
+            }
+            if((cmds[16].estado || cmds[20].estado) && cmds[83].estado){//virar pra baixo
+                socket.emit('rotation', {id: idG, resp: "s"})
+            }
+            else{
+                if(cmds[83].estado){//andar pra baixo
+                    socket.emit('move', {id: idG, resp: "s"})
+                }
+            }
+
+            if((cmds[16].estado || cmds[20].estado) && cmds[38].estado){//virar pra frente
+                socket.emit('rotation', {id: idG, resp: "w"})
+            }   
+            else{
+                if(cmds[38].estado){//andar pra frente
+                    socket.emit('move', {id: idG, resp: "w"})
+                }
+            }
+            if((cmds[16].estado || cmds[20].estado) && cmds[39].estado){//virar pra direita
+                socket.emit('rotation', {id: idG, resp: "d"})
+            }
+            else{
+                if(cmds[39].estado){//andar pra direita
+                    socket.emit('move', {id: idG, resp: "d"})
+                }
+            }
+            if((cmds[16].estado || cmds[20].estado) && cmds[37].estado){//virar pra esquerda
+                socket.emit('rotation', {id: idG, resp: "a"})
+            }
+            else{
+                if(cmds[37].estado){//andar pra esquerda
+                    socket.emit('move', {id: idG, resp: "a"})
+                }
+            }
+            if((cmds[16].estado || cmds[20].estado) && cmds[40].estado){//virar pra baixo
+                socket.emit('rotation', {id: idG, resp: "s"})
+            }
+            else{
+                if(cmds[40].estado){//andar pra baixo
+                    socket.emit('move', {id: idG, resp: "s"})
+                }
+            }
+
+        }
+
+
+        //detect keys pressed: (NECESSITA OTIMIZACAO pq qnd o jogador deixa a tecla clicada faz mtts requisiçoes de s)
+    
+               
+                
+
+            
+           
+                
+                let geometry = new THREE.BoxGeometry(10,10,10)
+                let material = new THREE.MeshBasicMaterial( {color: 0xFFCC00} )
+                
+                let cube = new THREE.Mesh( geometry, material )
+                let cube2 = new THREE.Mesh( geometry, material )
+                let cube3 = new THREE.Mesh( geometry, material )
+                cube.position.x = 25
+                cube.position.y = 25
+                cube.position.z = 25
+                scene.add(cube)
+
+                cube2.position.x = 25
+                cube2.position.y = 50
+                cube2.position.z = 25
+                scene.add(cube2)
+                
+                cube3.position.x = 25
+                cube3.position.y = 75
+                cube3.position.z = 25
+                scene.add(cube3)
+                players.push({
+                        nome: `teste`,
+                        cube: cube,
+                        cube2: cube2,
+                        cube3: cube3
+                    })
+
+                
+           
+            
+        
+
+        
+
+        
+        
+        let light = new THREE.HemisphereLight( 0xffffff, 0x444444 );
+        light.position.set( 0, 200, 0)
+        scene.add( light )
+
+        light = new THREE.DirectionalLight( 0xffffff );
+        light.position.set( 0, 200, 100);
+        light.castShadow = true;
+        light.shadow.camera.top = 180;
+        light.shadow.camera.bottom = -100;
+        light.shadow.camera.left = -120;
+        light.shadow.camera.right = 120;
+        scene.add( light )
+
+        //ground
+
+        let mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2000, 2000), new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false }));
+        mesh.rotation.x = - Math.PI / 2
+        mesh.receiveShadow = true
+        scene.add( mesh )
+
+        let grid = new THREE.GridHelper( 2000, 40, 0x000000, 0x000000)
+        grid.material.opacity = 0.2;
+        grid.material.transparent = true;
+        scene.add(grid)
+        //let loader = new GLTFLoader()
+        //loader.load( 'assets/scene.gltf', function (gltf) {
+          
+            //scene.add(gltf.scene)
+        //} )
+        
+		const animate = function () {
+
+			requestAnimationFrame( animate );
+         
+                cube.rotation.x += 0.1*Math.random()-0.05
+                cube.rotation.y += 0.1*Math.random()-0.05
+
+                cube2.rotation.x += 0.1*Math.random()-0.05
+                cube2.rotation.y += 0.1*Math.random()-0.05
+
+                cube3.rotation.x += 0.1*Math.random()-0.05
+                cube3.rotation.y += 0.1*Math.random()-0.05
+
+                for(let i = 0; i < players.length; i++){                    
+                    players[i].cube.rotation.x += 0.1*Math.random()-0.05
+                    players[i].cube.rotation.y += 0.1*Math.random()-0.05
+
+                    players[i].cube2.rotation.x += 0.1*Math.random()-0.05
+                    players[i].cube2.rotation.y += 0.1*Math.random()-0.05
+
+                    players[i].cube3.rotation.x += 0.1*Math.random()-0.05
+                    players[i].cube3.rotation.y += 0.1*Math.random()-0.05
+                }
+         
+            
+			renderer.render( scene, camera );
+			
+            };
+
+			animate();
+
+        
+
+        
+        
+
+        
+    </script>
+</body>
+</html>

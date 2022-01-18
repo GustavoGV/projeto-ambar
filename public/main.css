@@ -1,7 +1,7 @@
 body {
-    margin: 0;
-    height: 100vh;
-}
+    overflow-y: hidden; /* Hide vertical scrollbar */
+    overflow-x: hidden; /* Hide horizontal scrollbar */
+  }
 
 canvas {
     display: block;
