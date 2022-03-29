@@ -133,6 +133,7 @@ sockets.on('connection', async (socket) => {
         //console.log(msg.id + ' <<puxarUpdate msg.id')
         let p = await Player.findById({"_id" : msg.id})
         if(p){
+        //console.log(p)
         let ps = await Player.find()
         let resp = []
         let actionsState = []
@@ -169,15 +170,17 @@ sockets.on('connection', async (socket) => {
                     mody = mody*(-1)
                 }
                 if(modx < 2600 && mody < 2600){
-                    console.log('11111111111111')
-                    console.log(actions[i])
-                    console.log('11111111111111')
+                    //console.log('11111111111111')
+                    //console.log(actions[i])
+                    //console.log('11111111111111')
                     actionsState.push({
                         x: actions[i].coordenadas[0],
                         y: actions[i].coordenadas[1],
                         z: actions[i].coordenadas[2],
                         action: actions[i].action,
-                        classe: actions[i].classe
+                        classe: actions[i].classe,
+                        id:  actions[i].id,
+                        direction: actions[i].direction
                     })
                 }
                 }
@@ -328,7 +331,7 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
                 if(p.action == "basicAtack"){
                     if(p.lastRotation == "w"){
                         if(p.classe == "mago"){
-                            actions.push({direction: "w", on: 1, action: "basicAtack", classe: "mago", velocidade: Math.round(p.magicLevel*3), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y-1, p.z] })
+                            actions.push({direction: "w", on: 1, id: Math.round(10000*Math.random()), action: "basicAtack", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y-1, p.z] })
                             console.log(actions)
                             p.action = ""
                             await p.save()
@@ -336,7 +339,7 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
                     }
                     else if(p.lastRotation == "a"){
                         if(p.classe == "mago"){
-                            actions.push({direction: "a", on: 1, action: "basicAtack", classe: "mago", velocidade: Math.round(p.magicLevel*3), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x-1, p.y, p.z] })
+                            actions.push({direction: "a", on: 1, id: Math.round(10000*Math.random()), action: "basicAtack", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x-1, p.y, p.z] })
                             console.log(actions)
                             p.action = ""
                             await p.save()
@@ -344,7 +347,7 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
                     }
                     else if(p.lastRotation == "s"){
                         if(p.classe == "mago"){
-                            actions.push({direction: "s", on: 1, action: "basicAtack", classe: "mago", velocidade: Math.round(p.magicLevel*3), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y+1, p.z] })
+                            actions.push({direction: "s", on: 1, id: Math.round(10000*Math.random()), action: "basicAtack", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y+1, p.z] })
                             console.log(actions)
                             p.action = ""
                             await p.save()
@@ -353,7 +356,7 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
                     }
                     else if(p.lastRotation == "d"){
                         if(p.classe == "mago"){
-                            actions.push({direction: "d", on: 1, action: "basicAtack", classe: "mago", velocidade: Math.round(p.magicLevel*3), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x+1, p.y, p.z] })
+                            actions.push({direction: "d", on: 1, id: Math.round(10000*Math.random()), action: "basicAtack", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x+1, p.y, p.z] })
                             console.log(actions)
                             p.action = ""
                             await p.save()
@@ -364,7 +367,7 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
                 if(p.action == "skill1"){
                     if(p.lastRotation == "w"){
                         if(p.classe == "mago"){
-                            actions.push({direction: "w", on: 1, action: "skill1", classe: "mago", velocidade: Math.round(p.magicLevel*3), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y-1, p.z] })
+                            actions.push({direction: "w", on: 1, id: Math.round(10000*Math.random()), action: "skill1", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y-1, p.z] })
                             console.log(actions)
                             p.action = ""
                             await p.save()
@@ -372,7 +375,7 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
                     }
                     else if(p.lastRotation == "a"){
                         if(p.classe == "mago"){
-                            actions.push({direction: "a", on: 1, action: "skill1", classe: "mago", velocidade: Math.round(p.magicLevel*3), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x-1, p.y, p.z] })
+                            actions.push({direction: "a", on: 1, id: Math.round(10000*Math.random()), action: "skill1", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x-1, p.y, p.z] })
                             console.log(actions)
                             p.action = ""
                             await p.save()
@@ -380,7 +383,7 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
                     }
                     else if(p.lastRotation == "s"){
                         if(p.classe == "mago"){
-                            actions.push({direction: "s", on: 1, action: "skill1", classe: "mago", velocidade: Math.round(p.magicLevel*3), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y+1, p.z] })
+                            actions.push({direction: "s", on: 1, id: Math.round(10000*Math.random()), action: "skill1", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y+1, p.z] })
                             console.log(actions)
                             p.action = ""
                             await p.save()
@@ -389,7 +392,7 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
                     }
                     else if(p.lastRotation == "d"){
                         if(p.classe == "mago"){
-                            actions.push({direction: "d", on: 1, action: "skill1", classe: "mago", velocidade: Math.round(p.magicLevel*3), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x+1, p.y, p.z] })
+                            actions.push({direction: "d", on: 1, id: Math.round(10000*Math.random()), action: "skill1", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x+1, p.y, p.z] })
                             console.log(actions)
                             p.action = ""
                             await p.save()
@@ -400,7 +403,7 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
                 if(p.action == "skill2"){
                     if(p.lastRotation == "w"){
                         if(p.classe == "mago"){
-                            actions.push({direction: "w", on: 1, action: "skill2", classe: "mago", velocidade: Math.round(p.magicLevel*3), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y-1, p.z] })
+                            actions.push({direction: "w", on: 1, id: Math.round(10000*Math.random()), action: "skill2", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y-1, p.z] })
                             console.log(actions)
                             p.action = ""
                             await p.save()
@@ -408,7 +411,7 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
                     }
                     else if(p.lastRotation == "a"){
                         if(p.classe == "mago"){
-                            actions.push({direction: "a", on: 1, action: "skill2", classe: "mago", velocidade: Math.round(p.magicLevel*3), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x-1, p.y, p.z] })
+                            actions.push({direction: "a", on: 1, id: Math.round(10000*Math.random()), action: "skill2", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x-1, p.y, p.z] })
                             console.log(actions)
                             p.action = ""
                             await p.save()
@@ -416,7 +419,7 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
                     }
                     else if(p.lastRotation == "s"){
                         if(p.classe == "mago"){
-                            actions.push({direction: "s", on: 1, action: "skill2", classe: "mago", velocidade: Math.round(p.magicLevel*3), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y+1, p.z] })
+                            actions.push({direction: "s", on: 1, id: Math.round(10000*Math.random()), action: "skill2", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y+1, p.z] })
                             console.log(actions)
                             p.action = ""
                             await p.save()
@@ -425,7 +428,7 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
                     }
                     else if(p.lastRotation == "d"){
                         if(p.classe == "mago"){
-                            actions.push({direction: "d", on: 1, action: "skill2", classe: "mago", velocidade: Math.round(p.magicLevel*3), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x+1, p.y, p.z] })
+                            actions.push({direction: "d", on: 1, id: Math.round(10000*Math.random()), action: "skill2", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x+1, p.y, p.z] })
                             console.log(actions)
                             p.action = ""
                             await p.save()
@@ -436,7 +439,7 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
                 if(p.action == "skill3"){
                     if(p.lastRotation == "w"){
                         if(p.classe == "mago"){
-                            actions.push({direction: "w", on: 1, action: "skill3", classe: "mago", velocidade: Math.round(p.magicLevel*3), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y-1, p.z] })
+                            actions.push({direction: "w", on: 1, id: Math.round(10000*Math.random()), action: "skill3", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y-1, p.z] })
                             console.log(actions)
                             p.action = ""
                             await p.save()
@@ -444,7 +447,7 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
                     }
                     else if(p.lastRotation == "a"){
                         if(p.classe == "mago"){
-                            actions.push({direction: "a", on: 1, action: "skill3", classe: "mago", velocidade: Math.round(p.magicLevel*3), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x-1, p.y, p.z] })
+                            actions.push({direction: "a", on: 1, id: Math.round(10000*Math.random()), action: "skill3", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x-1, p.y, p.z] })
                             console.log(actions)
                             p.action = ""
                             await p.save()
@@ -452,7 +455,7 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
                     }
                     else if(p.lastRotation == "s"){
                         if(p.classe == "mago"){
-                            actions.push({direction: "s", on: 1, action: "skill3", classe: "mago", velocidade: Math.round(p.magicLevel*3), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y+1, p.z] })
+                            actions.push({direction: "s", on: 1, id: Math.round(10000*Math.random()), action: "skill3", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y+1, p.z] })
                             console.log(actions)
                             p.action = ""
                             await p.save()
@@ -461,7 +464,7 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
                     }
                     else if(p.lastRotation == "d"){
                         if(p.classe == "mago"){
-                            actions.push({direction: "d", on: 1, action: "skill3", classe: "mago", velocidade: Math.round(p.magicLevel*3), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x+1, p.y, p.z] })
+                            actions.push({direction: "d", on: 1, id: Math.round(10000*Math.random()), action: "skill3", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x+1, p.y, p.z] })
                             console.log(actions)
                             p.action = ""
                             await p.save()
@@ -894,6 +897,7 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
             if(actions[i].recemLancada == 1 && actions[i].on == 1){
                 actions[i].recemLancada = 0 // se o autor da açao morrer enquanto sua ação estiver sendo lancada (recemLancada) ela sera interrompida, ou se a acao de outro jogador foi cancelar a ação dele ela sera cancelada (tipo um interrupt)
             }
+            
             if(actions[i].on == 1 && actions[i].vidaUtil > 0){
                 actions[i].vidaUtil = actions[i].vidaUtil - 1
                 if(actions[i].vidaUtil == 0){
@@ -938,6 +942,8 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
             else{
                 spliceActions.push(i)
             }
+
+            
         }
         //await ps.save()
         function spliceA(sa) {
@@ -963,7 +969,7 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
         //rodar aqui as alterações (actions q prevaleceram) no modelo do Jogo e ja dar o Socket de Update...//checar se algum mandou 2 actions pro msm turno dai so considerar a ultima...
     
   
-setInterval(intervalFunc, 140);
+setInterval(intervalFunc, 100);
 
 
 
