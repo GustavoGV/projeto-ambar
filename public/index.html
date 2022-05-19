@@ -29,10 +29,11 @@
     "/assets/libs/OrbitControls.js"
     "/assets/libs/Detector.js"
         */
-        let socket = io.connect('http://15.228.253.84:3000/')//http://localhost:3000/')//http://18.231.176.38:3000/')
+        let socket = io.connect('http://localhost:3000')//15.228.253.84:3000/')//http://localhost:3000/')//http://18.231.176.38:3000/')
         let idG = ""
         let players = []
         let actions = []
+        let newActions = []
         let sqm = 50
         let coordenadasJogador = []
         let xCamera = 25
@@ -172,8 +173,9 @@
         })
         
         socket.on('update', function(newPositions) {
-            console.log(newPositions)
+            //console.log(newPositions)
             if(newPositions.actions.length > 0){
+                //console.log(newPositions.actions)
                 for( let i = 0; i < newPositions.actions.length; i ++){
                     //console.log('------')
                     //console.log(newPositions.actions.x + ' <- x')
@@ -214,6 +216,8 @@
 
             cube3.position.x = newPositions.x*sqm + 25
             cube3.position.z = newPositions.y*sqm + 25 
+            
+            newActions = newPositions.actions
             for (let i = 0; i < newPositions.resp.length; i++) {
                 let c = 0
                 for (let ii = 0; ii < players.length; ii++) {
@@ -342,8 +346,11 @@
                         
                         //actions[ii].cube.position.x = newPositions.actions[i].x*sqm + 25
                         //actions[ii].cube.position.z = newPositions.actions[i].y*sqm + 25
-                        actions[ii].cube.position.lerp(new THREE.Vector3(newPositions.actions[i].x*sqm + 25, 15, newPositions.actions[i].y*sqm + 25), 0.001)
-
+                        let multiplicadorEspaço = 2
+                        
+                        //actions[ii].cube.position.lerp(new THREE.Vector3(newPositions.action[i].x*(sqm), 15, newPositions.actions[i].y*(sqm)), 0.001)
+                        actions[ii].cube.position.x = newPositions.actions[i].x*sqm + 25
+                        actions[ii].cube.position.z = newPositions.actions[i].y*sqm + 25
                      
 
                         //players[ii].characterPosition.x = newPositions.resp[i].x*sqm + 25
@@ -426,6 +433,25 @@
                     
                 }
                 
+            }
+            let actionInicialState = 0
+            for ( let i = 0; i < actions.length; i ++) {
+                actionInicialState = actions[0]
+                let parouDeExistir = 1
+                for (let ii = 0; ii < newPositions.actions.length; ii++) {
+                    if ( newPositions.actions[ii].id == actions[i].id ) {
+                        parouDeExistir = 0
+                    }
+                }
+                if (parouDeExistir) {
+
+                    console.log('deixou de existir a action: ')
+                    console.log(actionInicialState)
+                    console.log('foi ate')
+                    console.log(actions[i])
+                    scene.remove(actions[i].cube)
+                    actions.splice(i, 1)
+                }
             }
             
         })
@@ -690,6 +716,9 @@ loader.load(
                     players[i].cube3.rotation.y += 0.1*Math.random()-0.05
                 }
          
+                for (let i = 0; i < actions.length; i ++) {
+
+                }
             
 			renderer.render( scene, camera );
 			

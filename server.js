@@ -180,7 +180,8 @@ sockets.on('connection', async (socket) => {
                         action: actions[i].action,
                         classe: actions[i].classe,
                         id:  actions[i].id,
-                        direction: actions[i].direction
+                        direction: actions[i].direction,
+                        vidaUtil: actions[i].vidaUtil//teria q ter um jeito mais persistente de falar que aquela magia perdeu toda a vida útil
                     })
                 }
                 }
@@ -199,7 +200,8 @@ sockets.on('connection', async (socket) => {
             y: p.y,
             z: p.z,
             rotation: p.lastRotation,
-            vida: p.vida
+            vida: p.vida,
+            online: 1
         })
     }
     else{
@@ -237,244 +239,245 @@ async function intervalFunc() { //mano com esse sistema de turnos dinamicos e gl
             let p = await Player.findById({ "_id" : psPrioritarios[i] })
             if(p){
                 if(p.vida > 0){
-            //console.log('nextMove >>' + p.nextMove)
-                let ps = await Player.find()
-                let colision = 0
+                    //console.log('nextMove >>' + p.nextMove)
+                    let ps = await Player.find()
+                    let colision = 0
 
-                if(p.nextMove == "w"){
-                    for (let c = 0; c < ps.length; c++) {
-                        if( ps[c].x == p.x && ps[c].y == p.y - 1){ //checa se a posicao futura do nosso personagem esntrata em colisao com a posicao atual de algum player... (falta as paredes AQUI! )
-                            colision = 1
-                            p.nextMove = "stay"
+                    if(p.nextMove == "w"){
+                        for (let c = 0; c < ps.length; c++) {
+                            if( ps[c].x == p.x && ps[c].y == p.y - 1){ //checa se a posicao futura do nosso personagem esntrata em colisao com a posicao atual de algum player... (falta as paredes AQUI! )
+                                colision = 1
+                                p.nextMove = "stay"
+                                p.nextNextMove = "stay"
+                                await p.save()
+                                console.log('Blocked ' + p.sockid)
+                                //break //se esse break estiver quebrando a funçao inteira ao inves de so esse For q esta dentro poder ser motivo de um BUG (acho q so da break no for msm...)
+                            }
+                        }
+                        if(colision !== 1){ //validar se ta livre o sqm...
+                            //console.log('passou w ' + colision)
+                            p.y = p.y - 1
+                            p.lastRotation = 'w'
+                            p.nextMove = p.nextNextMove
                             p.nextNextMove = "stay"
                             await p.save()
-                            console.log('Blocked ' + p.sockid)
-                            //break //se esse break estiver quebrando a funçao inteira ao inves de so esse For q esta dentro poder ser motivo de um BUG (acho q so da break no for msm...)
                         }
-                    }
-                    if(colision !== 1){ //validar se ta livre o sqm...
-                        //console.log('passou w ' + colision)
-                        p.y = p.y - 1
-                        p.lastRotation = 'w'
-                        p.nextMove = p.nextNextMove
-                        p.nextNextMove = "stay"
-                        await p.save()
-                    }
-                    else{
-                        sockets.to(p.sockid).emit('moveBlocked')
-                    }
-                }             
-                else if(p.nextMove == "s"){
-                    for (let c = 0; c < ps.length; c++) {
-                        if( ps[c].x == p.x && ps[c].y == p.y + 1){ //checa se a posicao futura do nosso personagem esntrata em colisao com a posicao atual de algum player... (falta as paredes AQUI! )
-                            p.nextMove = "stay"
+                        else{
+                            sockets.to(p.sockid).emit('moveBlocked')
+                        }
+                    }             
+                    else if(p.nextMove == "s"){
+                        for (let c = 0; c < ps.length; c++) {
+                            if( ps[c].x == p.x && ps[c].y == p.y + 1){ //checa se a posicao futura do nosso personagem esntrata em colisao com a posicao atual de algum player... (falta as paredes AQUI! )
+                                p.nextMove = "stay"
+                                p.nextNextMove = "stay"
+                                await p.save()
+                                colision = 1
+                                break
+                            }
+                        }
+                        if(colision !== 1){ //validar se ta livre o sqm...
+                            p.y = p.y + 1
+                            p.lastRotation = "s"
+                            p.nextMove = p.nextNextMove
                             p.nextNextMove = "stay"
                             await p.save()
-                            colision = 1
-                            break
+                        } 
+                        else{
+                            sockets.to(p.sockid).emit('moveBlocked')
                         }
                     }
-                    if(colision !== 1){ //validar se ta livre o sqm...
-                        p.y = p.y + 1
-                        p.lastRotation = "s"
-                        p.nextMove = p.nextNextMove
-                        p.nextNextMove = "stay"
-                        await p.save()
-                    } 
-                    else{
-                        sockets.to(p.sockid).emit('moveBlocked')
-                    }
-                }
-                else if(p.nextMove == "a"){
-                    for (let c = 0; c < ps.length; c++) {
-                        if( ps[c].x == p.x - 1 && ps[c].y == p.y){ //checa se a posicao futura do nosso personagem esntrata em colisao com a posicao atual de algum player... (falta as paredes AQUI! )
-                            p.nextMove = "stay"
+                    else if(p.nextMove == "a"){
+                        for (let c = 0; c < ps.length; c++) {
+                            if( ps[c].x == p.x - 1 && ps[c].y == p.y){ //checa se a posicao futura do nosso personagem esntrata em colisao com a posicao atual de algum player... (falta as paredes AQUI! )
+                                p.nextMove = "stay"
+                                p.nextNextMove = "stay"
+                                await p.save()
+                                colision = 1
+                                break
+                            }
+                        }
+                        if(colision !== 1){ //validar se ta livre o sqm...
+                            p.x = p.x - 1
+                            p.lastRotation = "a"
+                            p.nextMove = p.nextNextMove
                             p.nextNextMove = "stay"
                             await p.save()
-                            colision = 1
-                            break
+                        }
+                        else{
+                            sockets.to(p.sockid).emit('moveBlocked')
                         }
                     }
-                    if(colision !== 1){ //validar se ta livre o sqm...
-                        p.x = p.x - 1
-                        p.lastRotation = "a"
-                        p.nextMove = p.nextNextMove
-                        p.nextNextMove = "stay"
-                        await p.save()
-                    }
-                    else{
-                        sockets.to(p.sockid).emit('moveBlocked')
-                    }
-                }
-                else if(p.nextMove == "d"){
-                    for (let c = 0; c < ps.length; c++) {
-                        if( ps[c].x == p.x + 1 && ps[c].y == p.y){ //checa se a posicao futura do nosso personagem esntrata em colisao com a posicao atual de algum player... (falta as paredes AQUI! )
-                            p.nextMove = "stay"
+                    else if(p.nextMove == "d"){
+                        for (let c = 0; c < ps.length; c++) {
+                            if( ps[c].x == p.x + 1 && ps[c].y == p.y){ //checa se a posicao futura do nosso personagem esntrata em colisao com a posicao atual de algum player... (falta as paredes AQUI! )
+                                p.nextMove = "stay"
+                                p.nextNextMove = "stay"
+                                await p.save()
+                                colision = 1
+                                break
+                            }
+                        }
+                        if(colision !== 1){ //validar se ta livre o sqm...
+                            p.x = p.x + 1
+                            p.lastRotation = "d"
+                            p.nextMove = p.nextNextMove
                             p.nextNextMove = "stay"
                             await p.save()
-                            colision = 1
-                            break
+                        }
+                        else{
+                            sockets.to(p.sockid).emit('moveBlocked')
                         }
                     }
-                    if(colision !== 1){ //validar se ta livre o sqm...
-                        p.x = p.x + 1
-                        p.lastRotation = "d"
-                        p.nextMove = p.nextNextMove
-                        p.nextNextMove = "stay"
-                        await p.save()
-                    }
-                    else{
-                        sockets.to(p.sockid).emit('moveBlocked')
-                    }
-                }
 
-                if(p.action == "basicAtack"){
-                    if(p.lastRotation == "w"){
-                        if(p.classe == "mago"){
-                            actions.push({direction: "w", on: 1, id: Math.round(10000*Math.random()), action: "basicAtack", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y-1, p.z] })
-                            console.log(actions)
-                            p.action = ""
-                            await p.save()
+                    if(p.action == "basicAtack"){
+                        if(p.lastRotation == "w"){
+                            if(p.classe == "mago"){
+                                actions.push({direction: "w", on: 1, id: Math.round(10000*Math.random()), action: "basicAtack", classe: "mago", velocidade: Math.round(p.magicLevel*1/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y-1, p.z] })
+                                console.log(actions)
+                                p.action = ""
+                                await p.save()
+                            }
+                        }
+                        else if(p.lastRotation == "a"){
+                            if(p.classe == "mago"){
+                                actions.push({direction: "a", on: 1, id: Math.round(10000*Math.random()), action: "basicAtack", classe: "mago", velocidade: Math.round(p.magicLevel*1/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x-1, p.y, p.z] })
+                                console.log(actions)
+                                p.action = ""
+                                await p.save()
+                            }
+                        }
+                        else if(p.lastRotation == "s"){
+                            if(p.classe == "mago"){
+                                actions.push({direction: "s", on: 1, id: Math.round(10000*Math.random()), action: "basicAtack", classe: "mago", velocidade: Math.round(p.magicLevel*1/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y+1, p.z] })
+                                console.log(actions)
+                                p.action = ""
+                                await p.save()
+                            }
+                            
+                        }
+                        else if(p.lastRotation == "d"){
+                            if(p.classe == "mago"){
+                                actions.push({direction: "d", on: 1, id: Math.round(10000*Math.random()), action: "basicAtack", classe: "mago", velocidade: Math.round(p.magicLevel*1/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x+1, p.y, p.z] })
+                                console.log(actions)
+                                p.action = ""
+                                await p.save()
+                            }
+                            
                         }
                     }
-                    else if(p.lastRotation == "a"){
-                        if(p.classe == "mago"){
-                            actions.push({direction: "a", on: 1, id: Math.round(10000*Math.random()), action: "basicAtack", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x-1, p.y, p.z] })
-                            console.log(actions)
-                            p.action = ""
-                            await p.save()
+                    if(p.action == "skill1"){
+                        if(p.lastRotation == "w"){
+                            if(p.classe == "mago"){
+                                actions.push({direction: "w", on: 1, id: Math.round(10000*Math.random()), action: "skill1", classe: "mago", velocidade: Math.round(p.magicLevel*1/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y-1, p.z] })
+                                console.log(actions)
+                                p.action = ""
+                                await p.save()
+                            }
+                        }
+                        else if(p.lastRotation == "a"){
+                            if(p.classe == "mago"){
+                                actions.push({direction: "a", on: 1, id: Math.round(10000*Math.random()), action: "skill1", classe: "mago", velocidade: Math.round(p.magicLevel*1/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x-1, p.y, p.z] })
+                                console.log(actions)
+                                p.action = ""
+                                await p.save()
+                            }
+                        }
+                        else if(p.lastRotation == "s"){
+                            if(p.classe == "mago"){
+                                actions.push({direction: "s", on: 1, id: Math.round(10000*Math.random()), action: "skill1", classe: "mago", velocidade: Math.round(p.magicLevel*1/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y+1, p.z] })
+                                console.log(actions)
+                                p.action = ""
+                                await p.save()
+                            }
+                            
+                        }
+                        else if(p.lastRotation == "d"){
+                            if(p.classe == "mago"){
+                                actions.push({direction: "d", on: 1, id: Math.round(10000*Math.random()), action: "skill1", classe: "mago", velocidade: Math.round(p.magicLevel*1/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x+1, p.y, p.z] })
+                                console.log(actions)
+                                p.action = ""
+                                await p.save()
+                            }
+                            
                         }
                     }
-                    else if(p.lastRotation == "s"){
-                        if(p.classe == "mago"){
-                            actions.push({direction: "s", on: 1, id: Math.round(10000*Math.random()), action: "basicAtack", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y+1, p.z] })
-                            console.log(actions)
-                            p.action = ""
-                            await p.save()
+                    if(p.action == "skill2"){
+                        if(p.lastRotation == "w"){
+                            if(p.classe == "mago"){
+                                actions.push({direction: "w", on: 1, id: Math.round(10000*Math.random()), action: "skill2", classe: "mago", velocidade: Math.round(p.magicLevel*1/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y-1, p.z] })
+                                console.log(actions)
+                                p.action = ""
+                                await p.save()
+                            }
                         }
-                        
-                    }
-                    else if(p.lastRotation == "d"){
-                        if(p.classe == "mago"){
-                            actions.push({direction: "d", on: 1, id: Math.round(10000*Math.random()), action: "basicAtack", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x+1, p.y, p.z] })
-                            console.log(actions)
-                            p.action = ""
-                            await p.save()
+                        else if(p.lastRotation == "a"){
+                            if(p.classe == "mago"){
+                                actions.push({direction: "a", on: 1, id: Math.round(10000*Math.random()), action: "skill2", classe: "mago", velocidade: Math.round(p.magicLevel*1/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x-1, p.y, p.z] })
+                                console.log(actions)
+                                p.action = ""
+                                await p.save()
+                            }
                         }
-                        
-                    }
-                }
-                if(p.action == "skill1"){
-                    if(p.lastRotation == "w"){
-                        if(p.classe == "mago"){
-                            actions.push({direction: "w", on: 1, id: Math.round(10000*Math.random()), action: "skill1", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y-1, p.z] })
-                            console.log(actions)
-                            p.action = ""
-                            await p.save()
+                        else if(p.lastRotation == "s"){
+                            if(p.classe == "mago"){
+                                actions.push({direction: "s", on: 1, id: Math.round(10000*Math.random()), action: "skill2", classe: "mago", velocidade: Math.round(p.magicLevel*1/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y+1, p.z] })
+                                console.log(actions)
+                                p.action = ""
+                                await p.save()
+                            }
+                            
                         }
-                    }
-                    else if(p.lastRotation == "a"){
-                        if(p.classe == "mago"){
-                            actions.push({direction: "a", on: 1, id: Math.round(10000*Math.random()), action: "skill1", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x-1, p.y, p.z] })
-                            console.log(actions)
-                            p.action = ""
-                            await p.save()
-                        }
-                    }
-                    else if(p.lastRotation == "s"){
-                        if(p.classe == "mago"){
-                            actions.push({direction: "s", on: 1, id: Math.round(10000*Math.random()), action: "skill1", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y+1, p.z] })
-                            console.log(actions)
-                            p.action = ""
-                            await p.save()
-                        }
-                        
-                    }
-                    else if(p.lastRotation == "d"){
-                        if(p.classe == "mago"){
-                            actions.push({direction: "d", on: 1, id: Math.round(10000*Math.random()), action: "skill1", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x+1, p.y, p.z] })
-                            console.log(actions)
-                            p.action = ""
-                            await p.save()
-                        }
-                        
-                    }
-                }
-                if(p.action == "skill2"){
-                    if(p.lastRotation == "w"){
-                        if(p.classe == "mago"){
-                            actions.push({direction: "w", on: 1, id: Math.round(10000*Math.random()), action: "skill2", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y-1, p.z] })
-                            console.log(actions)
-                            p.action = ""
-                            await p.save()
+                        else if(p.lastRotation == "d"){
+                            if(p.classe == "mago"){
+                                actions.push({direction: "d", on: 1, id: Math.round(10000*Math.random()), action: "skill2", classe: "mago", velocidade: Math.round(p.magicLevel*1/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x+1, p.y, p.z] })
+                                console.log(actions)
+                                p.action = ""
+                                await p.save()
+                            }
+                            
                         }
                     }
-                    else if(p.lastRotation == "a"){
-                        if(p.classe == "mago"){
-                            actions.push({direction: "a", on: 1, id: Math.round(10000*Math.random()), action: "skill2", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x-1, p.y, p.z] })
-                            console.log(actions)
-                            p.action = ""
-                            await p.save()
+                    if(p.action == "skill3"){
+                        if(p.lastRotation == "w"){
+                            if(p.classe == "mago"){
+                                actions.push({direction: "w", on: 1, id: Math.round(10000*Math.random()), action: "skill3", classe: "mago", velocidade: Math.round(p.magicLevel*1/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y-1, p.z] })
+                                console.log(actions)
+                                p.action = ""
+                                await p.save()
+                            }
+                        }
+                        else if(p.lastRotation == "a"){
+                            if(p.classe == "mago"){
+                                actions.push({direction: "a", on: 1, id: Math.round(10000*Math.random()), action: "skill3", classe: "mago", velocidade: Math.round(p.magicLevel*1/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x-1, p.y, p.z] })
+                                console.log(actions)
+                                p.action = ""
+                                await p.save()
+                            }
+                        }
+                        else if(p.lastRotation == "s"){
+                            if(p.classe == "mago"){
+                                actions.push({direction: "s", on: 1, id: Math.round(10000*Math.random()), action: "skill3", classe: "mago", velocidade: Math.round(p.magicLevel*1/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y+1, p.z] })
+                                console.log(actions)
+                                p.action = ""
+                                await p.save()
+                            }
+                            
+                        }
+                        else if(p.lastRotation == "d"){
+                            if(p.classe == "mago"){
+                                actions.push({direction: "d", on: 1, id: Math.round(10000*Math.random()), action: "skill3", classe: "mago", velocidade: Math.round(p.magicLevel*1/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x+1, p.y, p.z] })
+                                console.log(actions)
+                                p.action = ""
+                                await p.save()
+                            }
+                            
                         }
                     }
-                    else if(p.lastRotation == "s"){
-                        if(p.classe == "mago"){
-                            actions.push({direction: "s", on: 1, id: Math.round(10000*Math.random()), action: "skill2", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y+1, p.z] })
-                            console.log(actions)
-                            p.action = ""
-                            await p.save()
-                        }
-                        
-                    }
-                    else if(p.lastRotation == "d"){
-                        if(p.classe == "mago"){
-                            actions.push({direction: "d", on: 1, id: Math.round(10000*Math.random()), action: "skill2", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x+1, p.y, p.z] })
-                            console.log(actions)
-                            p.action = ""
-                            await p.save()
-                        }
-                        
-                    }
-                }
-                if(p.action == "skill3"){
-                    if(p.lastRotation == "w"){
-                        if(p.classe == "mago"){
-                            actions.push({direction: "w", on: 1, id: Math.round(10000*Math.random()), action: "skill3", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y-1, p.z] })
-                            console.log(actions)
-                            p.action = ""
-                            await p.save()
-                        }
-                    }
-                    else if(p.lastRotation == "a"){
-                        if(p.classe == "mago"){
-                            actions.push({direction: "a", on: 1, id: Math.round(10000*Math.random()), action: "skill3", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x-1, p.y, p.z] })
-                            console.log(actions)
-                            p.action = ""
-                            await p.save()
-                        }
-                    }
-                    else if(p.lastRotation == "s"){
-                        if(p.classe == "mago"){
-                            actions.push({direction: "s", on: 1, id: Math.round(10000*Math.random()), action: "skill3", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x, p.y+1, p.z] })
-                            console.log(actions)
-                            p.action = ""
-                            await p.save()
-                        }
-                        
-                    }
-                    else if(p.lastRotation == "d"){
-                        if(p.classe == "mago"){
-                            actions.push({direction: "d", on: 1, id: Math.round(10000*Math.random()), action: "skill3", classe: "mago", velocidade: Math.round(p.magicLevel*3/10), vidaUtil: Math.round(p.magicLevel*4), dano: Math.round(8*p.magicLevel*p.level), nome: p.nome, recemLancada: 1, coordenadas: [p.x+1, p.y, p.z] })
-                            console.log(actions)
-                            p.action = ""
-                            await p.save()
-                        }
-                        
-                    }
-                }
         
                 }
                 else{
+                //´punição pela morte ...
                 p.x = 0
                 p.y = 0
                 p.vida = 100
